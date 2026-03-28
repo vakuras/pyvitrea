@@ -15,11 +15,6 @@ Communicates directly with the Vitrea controller over TCP using a reverse-engine
 ## Quick Start
 
 ```bash
-# Set your controller details
-export VITREA_HOST=192.168.1.100
-export VITREA_USER=<YOUR_USERNAME>
-export VITREA_PASS=<YOUR_PASSWORD>
-
 # Control switches
 python3 vitrea.py on  3 1        # Turn on group 3, channel 1
 python3 vitrea.py off 3 1        # Turn off
@@ -38,20 +33,29 @@ python3 vitrea.py state cover 4  # Read cover state -> 100/0
 
 ## Configuration
 
-Set via environment variables or edit defaults in `vitrea.py`:
+Set via environment variables, or create a `vitrea_config.json` next to the script:
 
-| Variable | Default | Description |
-|---|---|---|
-| `VITREA_HOST` | `192.168.1.100` | Vitrea controller IP |
-| `VITREA_PORT` | `11503` | Vitrea TCP port |
-| `VITREA_USER` | *(required)* | Login username |
-| `VITREA_PASS` | *(required)* | Login password |
+```json
+{
+  "host": "192.168.1.100",
+  "port": 11503,
+  "user": "your_username",
+  "pass": "your_password"
+}
+```
+
+Or use environment variables (these override the config file):
+
+| Variable | Description |
+|---|---|
+| `VITREA_HOST` | Vitrea controller IP |
+| `VITREA_PORT` | Vitrea TCP port |
+| `VITREA_USER` | Login username |
+| `VITREA_PASS` | Login password |
 
 ## Home Assistant Setup
 
-Copy `vitrea.py` to `/config/scripts/` on your HA instance.
-
-In HA, set environment variables via the add-on config or pass them inline:
+Copy `vitrea.py` to `/config/scripts/` on your HA instance, and create `vitrea_config.json` next to it with your credentials.
 
 ### State Poller (polls all devices every 15s)
 
@@ -60,7 +64,7 @@ command_line:
   - sensor:
       unique_id: vitrea_state_poller
       name: Vitrea State Poller
-      command: "VITREA_HOST=<YOUR_IP> python3 /config/scripts/vitrea.py states"
+      command: "python3 /config/scripts/vitrea.py states"
       value_template: "{{ now().isoformat() }}"
       scan_interval: 15
 ```
@@ -71,8 +75,8 @@ command_line:
   - switch:
       unique_id: vitrea_living_room_light
       name: Living Room Light
-      command_on:    "VITREA_HOST=<YOUR_IP> python3 /config/scripts/vitrea.py on 3 1"
-      command_off:   "VITREA_HOST=<YOUR_IP> python3 /config/scripts/vitrea.py off 3 1"
+      command_on:    "python3 /config/scripts/vitrea.py on 3 1"
+      command_off:   "python3 /config/scripts/vitrea.py off 3 1"
       command_state: "python3 /config/scripts/vitrea.py state 3 1"
       value_template: "{{ value.strip() }}"
       scan_interval: 15
@@ -84,9 +88,9 @@ command_line:
   - cover:
       unique_id: vitrea_dining_room_shutter
       name: Dining Room Shutter
-      command_open:  "VITREA_HOST=<YOUR_IP> python3 /config/scripts/vitrea.py open 4"
-      command_close: "VITREA_HOST=<YOUR_IP> python3 /config/scripts/vitrea.py close 4"
-      command_stop:  "VITREA_HOST=<YOUR_IP> python3 /config/scripts/vitrea.py stop 4"
+      command_open:  "python3 /config/scripts/vitrea.py open 4"
+      command_close: "python3 /config/scripts/vitrea.py close 4"
+      command_stop:  "python3 /config/scripts/vitrea.py stop 4"
       command_state: "python3 /config/scripts/vitrea.py state cover 4"
       value_template: "{{ value | int(0) }}"
       scan_interval: 15

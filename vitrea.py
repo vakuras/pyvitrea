@@ -19,13 +19,21 @@ Environment variables (or edit defaults below):
 """
 import socket, sys, json, os
 
-HOST = os.environ.get("VITREA_HOST", "192.168.1.100")
-PORT = int(os.environ.get("VITREA_PORT", "11503"))
-TIMEOUT = 3
-STATE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "vitrea_states.json")
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_FILE = os.path.join(SCRIPT_DIR, "vitrea_config.json")
+STATE_FILE = os.path.join(SCRIPT_DIR, "vitrea_states.json")
 
-USERNAME = os.environ.get("VITREA_USER", "")
-PASSWORD = os.environ.get("VITREA_PASS", "")
+# Load config: vitrea_config.json > environment variables > defaults
+_config = {}
+if os.path.exists(CONFIG_FILE):
+    with open(CONFIG_FILE) as _f:
+        _config = json.load(_f)
+
+HOST = os.environ.get("VITREA_HOST", _config.get("host", "192.168.1.100"))
+PORT = int(os.environ.get("VITREA_PORT", _config.get("port", 11503)))
+TIMEOUT = 3
+USERNAME = os.environ.get("VITREA_USER", _config.get("user", ""))
+PASSWORD = os.environ.get("VITREA_PASS", _config.get("pass", ""))
 
 
 def _build_login(username, password):
