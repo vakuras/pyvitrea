@@ -105,6 +105,18 @@ def query_states():
     return result
 
 
+def _update_state_cache(group, channel, on, level=0):
+    """Update the cached state file immediately after a command."""
+    try:
+        with open(STATE_FILE, "r") as f:
+            states = json.load(f)
+    except Exception:
+        states = {}
+    states[f"{group}_{channel}"] = {"on": on, "level": level}
+    with open(STATE_FILE, "w") as f:
+        json.dump(states, f)
+
+
 def main():
     if len(sys.argv) < 2:
         print(__doc__)
@@ -129,23 +141,29 @@ def main():
         g, c = int(sys.argv[2]), int(sys.argv[3])
         lv = int(sys.argv[4]) if len(sys.argv) > 4 else 0
         send_command(_build_cmd(g, c, on=True, level=lv))
+        _update_state_cache(g, c, True, lv)
 
     elif action == "off":
         g, c = int(sys.argv[2]), int(sys.argv[3])
         lv = int(sys.argv[4]) if len(sys.argv) > 4 else 0
         send_command(_build_cmd(g, c, on=False, level=lv))
+        _update_state_cache(g, c, False, lv)
 
     elif action == "open":
         g = int(sys.argv[2])
         send_command(_build_cmd(g, 1, on=True, level=100))
+        _update_state_cache(g, 1, True, 100)
 
     elif action == "close":
         g = int(sys.argv[2])
         send_command(_build_cmd(g, 2, on=True, level=0))
+        _update_state_cache(g, 2, True, 0)
 
     elif action == "stop":
         g = int(sys.argv[2])
         send_command(_build_cmd(g, 2, on=False, level=255))
+        _update_state_cache(g, 1, False, 0)
+        _update_state_cache(g, 2, False, 0)
 
     elif action == "state":
         try:
