@@ -153,10 +153,12 @@ def main():
         g = int(sys.argv[2])
         send_command(_build_cmd(g, 1, on=True, level=100))
         _update_state_cache(g, 1, True, 100)
+        _update_state_cache(g, 2, False, 0)
 
     elif action == "close":
         g = int(sys.argv[2])
         send_command(_build_cmd(g, 2, on=True, level=0))
+        _update_state_cache(g, 1, False, 0)
         _update_state_cache(g, 2, True, 0)
 
     elif action == "stop":
