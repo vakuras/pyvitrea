@@ -182,7 +182,7 @@ def main():
             elif ch2.get("on"):
                 print("0")
             else:
-                print("100")
+                print("50")
         else:
             g, c = int(sys.argv[2]), int(sys.argv[3])
             s = states_json.get(f"{g}_{c}", {})
